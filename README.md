@@ -1,5 +1,5 @@
 # Installation & Usage
-- composer install
+- composer update
 - Open file in app/config/parameters.yml see code bellow
 
 		database_host: 127.0.0.1
