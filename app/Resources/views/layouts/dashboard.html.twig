@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Dashboard Admin</title>
+
+    {{ include('includes/meta.html.twig') }}
+    {{ include('includes/css.html.twig') }}
+
+    {% block style %}{% endblock %}
+</head>
+<body class="fixed-left">
+	<div id="wrapper">
+
+		{{ include('includes/topbar.html.twig') }}
+		{{ include('includes/side_menu.html.twig') }}
+
+		<div class="content-page">
+		    <div class="content">
+		        <div class="">
+		            <div class="page-header-title">
+		                <h4 class="page-title">Dashbaord Admin</h4>
+		            </div>
+		        </div>
+		        <div class="page-content-wrapper ">
+		            <div class="container">
+		            	<div class="row">
+		            		<div class="col-md-12 col-lg-12 col-xs-12 col-sm-12">
+		            			<div class="panel panel-primary">
+		            				<div class="panel-body">
+		            					{% block body %} {% endblock %}
+		            				</div>
+		            			</div>
+		            		</div>
+		            	</div>
+		            </div>
+		        </div>
+		    </div>
+		    <footer class="footer">
+		    	© WebAdmin - All Rights Reserved.
+		    </footer>
+		</div>
+	</div>
+
+		{{ include('includes/modal.html.twig') }}
+   	{{ include('includes/js.html.twig') }}
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

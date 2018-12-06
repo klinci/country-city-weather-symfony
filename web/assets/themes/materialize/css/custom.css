@@ -1,0 +1,21 @@
+.modal
+{
+	width: 50% !important
+}  /* increase the width as per you desire */
+
+.odd:hover,
+.odd:focus,
+.odd:active,
+.even:focus,
+.even:active,
+.even:hover
+{
+    cursor: pointer;
+    cursor: hand;
+}
+html
+{
+	font-family: sans-serif;
+	font-weight: 100;
+	color: #636b6f;
+}
