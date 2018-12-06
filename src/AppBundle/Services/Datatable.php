@@ -1,6 +1,7 @@
 <?php
 
-namespace AppBundle\Repository;
+namespace AppBundle\Services;
+
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class Datatable

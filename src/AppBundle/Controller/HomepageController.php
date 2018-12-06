@@ -4,18 +4,31 @@ namespace AppBundle\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\{Request, Response, JsonResponse};
+
 use AppBundle\Entity\Country;
-use AppBundle\Repository\{Datatable,CountryRepository};
+use Symfony\Component\HttpFoundation\{
+	Request,
+	Response,
+	JsonResponse
+};
+use AppBundle\Services\{
+	OpenWeatherMapService,
+	ResponseWriterService,
+	GoogleMapApiService,
+	Datatable
+};
 
 class HomepageController extends Controller
 {
 
 	const countries = 'storages/json/countries.json';
 	const cities = 'http://service.fajarpunya.com/storages/json/cities_and_regions/cities/';
-	const owm_uri = 'http://api.openweathermap.org/data/2.5/weather?q=';
-	const owm_api_key = 'e4dbc940495a70e7deda7a4b1607102c';
-	const google_api_key = 'AIzaSyDISw6DtybhRp45w3tWj1VKGSnicuv21EI';
+
+	public function __construct() {
+		$this->owm = new OpenWeatherMapService();
+		$this->gmap = new GoogleMapApiService();
+		$this->write = new ResponseWriterService();
+	}
 
 	/**
 	* @Route("/", name="homepage")
@@ -150,16 +163,10 @@ class HomepageController extends Controller
 			$gc1 = $gm->getConnection()->prepare($sql1);
 			$gc1->execute();
 
-			return new JsonResponse([
-				'error' => 0,
-				'message' => 'Successfull.'
-			]);
+			return $this->write->success('Successfull.');
 
 		} catch (\Exception $e) {
-			return new JsonResponse([
-				'error' => 1,
-				'message' => $e->getMessage()
-			]);
+			return $this->write->error($e->getMessage());
 		}
 	}
 
@@ -168,72 +175,32 @@ class HomepageController extends Controller
 	*/
   public function getWeather(Request $request)
   {
-  	$ch = curl_init();
-		curl_setopt_array($ch, array(
-			CURLOPT_URL	 			=> 	'http://api.openweathermap.org/data/2.5/weather?q='.$request->get('city_name').'&APPID='.self::owm_api_key,
-			CURLOPT_RETURNTRANSFER 	=> 	1,
-			CURLOPT_HEADER			=> 	0, #0 ? 1 : 0,
-			CURLOPT_TIMEOUT			=> 	30,
-		));
+  	try {
+	  	$owmResonse = $this->owm->getWeather($request->get('city_name'));
 
-		$data 	= curl_exec($ch);
-		$error 	= curl_error($ch);
-		$info 	= curl_getinfo($ch);
+			$weatherResponse = json_decode($owmResonse);
 
-		if($data) {
-			$decode = json_decode($data);
-      if($decode->cod != 404) {
-        return $this->getNearby($decode);
-      }
-      return $data;
-		} else {
-			return $error;
-		}
+			if($weatherResponse->cod != 404) {
+				$nearbyResponse = $this->gmap->getNearby($weatherResponse);
+				$nearbyResponseDecode = json_decode($nearbyResponse);
+
+				$row['first'] = $weatherResponse;
+				$result = $nearbyResponseDecode->results;
+
+				for ($i=0; $i < count($result); $i++) {
+					$owmResonse = $this->owm->getWeather($result[$i]->name);
+					$row['nearbys'][$i] = json_decode($owmResonse);
+				}
+				return new JsonResponse($row);
+			} else {
+				return $this->write->error('City not found.');
+			}	
+  	} catch (\Exception $e) {
+
+  		return $this->write->error($e->getMessage());
+
+  	}
   }
-
-  public function getNearby($request)
-  {
-
-  	$ch = curl_init();
-		curl_setopt_array($ch, array(
-			CURLOPT_URL	 			=> 	'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location='.$request->coord->lat.','.$request->coord->lon.'&radius=200000&type=locality&key='.self::google_api_key,
-			CURLOPT_RETURNTRANSFER 	=> 	1,
-			CURLOPT_HEADER					=> 	0, #0 ? 1 : 0,
-			CURLOPT_TIMEOUT					=> 	30,
-		));
-
-		$data 	= curl_exec($ch);
-		$error 	= curl_error($ch);
-		$info 	= curl_getinfo($ch);
-
-		if($data) {
-			// return $data;
-			$decode = json_decode($data);
-			return $this->getWeatherByCoordinate($decode,$request);
-		} else {
-			return new JsonResponse($error);
-		}
-  }
-
-    public function getWeatherByCoordinate($nearby_data,$request)
-    {
-
-    	$row['first'] = $request;
-    	$result = $nearby_data->results;
-    	for ($i=0; $i < count($result); $i++) {
-  	  	$ch[$i] = curl_init();
-  			curl_setopt_array($ch[$i], array(
-  				CURLOPT_URL	 			=> 	'http://api.openweathermap.org/data/2.5/weather?q='.$result[$i]->name.'&APPID='.self::owm_api_key,
-  				CURLOPT_RETURNTRANSFER 	=> 	1,
-  				CURLOPT_HEADER			=> 	0, #0 ? 1 : 0,
-  				CURLOPT_TIMEOUT			=> 	30,
-  			));
-    		$row['nearbys'][$i] = json_decode(curl_exec($ch[$i]));
-    		curl_close($ch[$i]);
-    	}
-
-  		return new JsonResponse($row);
-    }
 
 	protected function doctrine()
 	{
