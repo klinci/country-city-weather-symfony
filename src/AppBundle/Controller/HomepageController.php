@@ -12,9 +12,7 @@ use Symfony\Component\HttpFoundation\{
 	JsonResponse
 };
 use AppBundle\Services\{
-	OpenWeatherMapService,
 	ResponseWriterService,
-	GoogleMapApiService,
 	Datatable
 };
 
@@ -25,8 +23,6 @@ class HomepageController extends Controller
 	const cities = 'http://service.fajarpunya.com/storages/json/cities_and_regions/cities/';
 
 	public function __construct() {
-		$this->owm = new OpenWeatherMapService();
-		$this->gmap = new GoogleMapApiService();
 		$this->write = new ResponseWriterService();
 	}
 
@@ -175,31 +171,54 @@ class HomepageController extends Controller
 	*/
   public function getWeather(Request $request)
   {
+
   	try {
-	  	$owmResonse = $this->owm->getWeather($request->get('city_name'));
 
-			$weatherResponse = json_decode($owmResonse);
+  		/*
+  		* Call Wheater Manager Services
+  		*/
+  		$wm = $this->get('WeatherManager');
+  		/*
+  		* Call google Map API Service
+  		*/
+  		$gmap = $this->get('GoogleMapApiManager');
+  		/*
+  		* Get Weather
+  		*/
+  		$owmResponse = $wm->getWeather($request->get('city_name'));
+  		$weatherResponse = json_decode($owmResponse);
 
-			if($weatherResponse->cod != 404) {
-				$nearbyResponse = $this->gmap->getNearby($weatherResponse);
-				$nearbyResponseDecode = json_decode($nearbyResponse);
+  		if($weatherResponse->cod != 404) {
+  			$nearbyResponse = $gmap->getNearby($weatherResponse);
+  			$nearbyResponseDecode = json_decode($nearbyResponse);
 
-				$row['first'] = $weatherResponse;
-				$result = $nearbyResponseDecode->results;
+  			$row['first'] = $weatherResponse;
+  			$result = $nearbyResponseDecode->results;
+  			for ($i=0; $i < count($result); $i++) {
+  				$owmResonse = $wm->getWeather($result[$i]->name);
+  				$row['nearbys'][$i] = json_decode($owmResonse);
+  			}
+  			return new JsonResponse($row);
+  		} else {
+  			return $this->write->error('City not found.');
+  		}
 
-				for ($i=0; $i < count($result); $i++) {
-					$owmResonse = $this->owm->getWeather($result[$i]->name);
-					$row['nearbys'][$i] = json_decode($owmResonse);
-				}
-				return new JsonResponse($row);
-			} else {
-				return $this->write->error('City not found.');
-			}	
   	} catch (\Exception $e) {
-
-  		return $this->write->error($e->getMessage());
-
+  		
   	}
+
+  	return new Response($owmResponse);
+  }
+
+	/**
+	* @Route("/get-test", name="get-test")
+	*/
+  public function getTest() {
+  	// return new Response(
+  	// 	$this->get('weather.example')
+  	// );
+  	$wm = $this->get('WeatherManager');
+  	return new Response($wm->getWeather('param'));
   }
 
 	protected function doctrine()

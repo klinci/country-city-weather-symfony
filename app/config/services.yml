@@ -29,6 +29,22 @@ services:
         public: true
         tags: ['controller.service_arguments']
 
+    WeatherManager:
+        public: true
+        class: WeatherBundle\Manager\WeatherManager
+        arguments:
+            - "e4dbc940495a70e7deda7a4b1607102c"
+            - "http://api.openweathermap.org/data/2.5/weather?q="
+
+    GoogleMapApiManager:
+        public: true
+        class: GoogleMapApiBundle\Manager\GoogleMapApiManager
+        arguments:
+            - "AIzaSyDISw6DtybhRp45w3tWj1VKGSnicuv21EI" 
+            - "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
+            - "50000"
+            - "locality"
+
     # add more services, or override services that need manual wiring
     # AppBundle\Service\ExampleService:
     #     arguments:

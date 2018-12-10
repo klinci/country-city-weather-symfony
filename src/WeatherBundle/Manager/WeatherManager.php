@@ -1,20 +1,36 @@
 <?php
 
-namespace AppBundle\Services;
+namespace WeatherBundle\Manager;
 
-use Symfony\Component\HttpFoundation\Response;
-
-class OpenWeatherMapService
+/**
+* Class WeatherManager
+*
+* @package WeatherBunlde\Manager
+*/
+class WeatherManager
 {
 
-	const owm_uri = 'http://api.openweathermap.org/data/2.5/weather?q=';
-	const owm_api_key = 'e4dbc940495a70e7deda7a4b1607102c';
+	/**
+	* @var string
+	*/
+	protected $apikey;
+
+	/**
+	* @var string
+	*/
+	protected $url;
+
+	public function __construct($apikey,$url)
+	{
+		$this->apikey = $apikey;
+		$this->url 		= $url;
+	}
 
 	public function getWeather($param)
 	{
   	$ch = curl_init();
 		curl_setopt_array($ch, array(
-			CURLOPT_URL => self::owm_uri.$param.'&APPID='.self::owm_api_key,
+			CURLOPT_URL => $this->url.$param.'&APPID='.$this->apikey,
 			CURLOPT_RETURNTRANSFER 	=> 	1,
 			CURLOPT_HEADER => 	0, #0 ? 1 : 0,
 			CURLOPT_TIMEOUT => 	30,
