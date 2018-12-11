@@ -177,11 +177,11 @@ class HomepageController extends Controller
   		/*
   		* Call Wheater Manager Services
   		*/
-  		$wm = $this->get('WeatherManager');
+  		$wm = $this->get('weather.manager');
   		/*
   		* Call google Map API Service
   		*/
-  		$gmap = $this->get('GoogleMapApiManager');
+  		$gmap = $this->get('google.manager');
   		/*
   		* Get Weather
   		*/
@@ -204,10 +204,8 @@ class HomepageController extends Controller
   		}
 
   	} catch (\Exception $e) {
-  		
+  		return $this->write->error($e->getMessage());
   	}
-
-  	return new Response($owmResponse);
   }
 
 	/**

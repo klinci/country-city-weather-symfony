@@ -1,0 +1,10 @@
+parameters:
+  google_apikey: "AIzaSyDISw6DtybhRp45w3tWj1VKGSnicuv21EI"
+  google_url: "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
+  google_radius: 50000
+  google_type: "locality"
+
+services:
+    google.manager:
+        class: GoogleMapApiBundle\Manager\GoogleMapApiManager
+        arguments: ["%google_apikey%","%google_url%","%google_radius%","%google_type%"]

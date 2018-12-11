@@ -6,8 +6,7 @@
     "autoload": {
         "psr-4": {
             "AppBundle\\": "src/AppBundle",
-            "WeatherBundle\\": "src/WeatherBundle",
-            "GoogleMapApiBundle\\": "src/GoogleMapApiBundle"
+            "": "src/"
         },
         "classmap": [ "app/AppKernel.php", "app/AppCache.php" ]
     },

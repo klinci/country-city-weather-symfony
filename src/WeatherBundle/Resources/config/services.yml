@@ -1,0 +1,8 @@
+parameters:
+  apikey: "e4dbc940495a70e7deda7a4b1607102c"
+  url: "http://api.openweathermap.org/data/2.5/weather?q="
+
+services:
+    weather.manager:
+        class: WeatherBundle\Manager\WeatherManager
+        arguments: ["%apikey%","%url%"]

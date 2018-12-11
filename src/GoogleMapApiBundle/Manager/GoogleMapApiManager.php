@@ -12,26 +12,26 @@ class GoogleMapApiManager
 	/**
 	* @var string
 	*/
-	protected $apikey;
+	private $google_apikey;
 	/**
 	* @var string
 	*/
-	protected $url;
+	private $google_url;
 	/**
 	* @var string
 	*/
-	protected $radius;
+	private $google_radius;
 	/**
 	* @var string
 	*/
-	protected $type;
+	private $google_type;
 
-	public function __construct($apikey,$url,$radius,$type)
+	public function __construct($google_apikey,$google_url,$google_radius,$google_type)
 	{
-		$this->apikey = $apikey;
-		$this->url = $url;
-		$this->radius = $radius;
-		$this->type = $type;
+		$this->apikey = $google_apikey;
+		$this->url = $google_url;
+		$this->radius = $google_radius;
+		$this->type = $google_type;
 	}
 
 	public function getNearby($param)
